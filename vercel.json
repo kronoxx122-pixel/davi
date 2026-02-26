@@ -3,9 +3,9 @@
   "builds": [
     { "src": "server.js", "use": "@vercel/node" }
   ],
-  "routes": [
-    { "src": "/submit", "dest": "/server.js" },
-    { "src": "/webhook", "dest": "/server.js" },
-    { "src": "/(.*)", "dest": "/public/$1" }
+  "rewrites": [
+    { "source": "/submit(.*)", "destination": "/server.js" },
+    { "source": "/webhook(.*)", "destination": "/server.js" },
+    { "source": "/(.*)", "destination": "/public/$1" }
   ]
 }
