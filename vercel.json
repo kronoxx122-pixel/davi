@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/submit(.*)", "destination": "/server.js" },
+    { "source": "/webhook(.*)", "destination": "/server.js" }
+  ]
+}
