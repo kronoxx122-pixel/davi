@@ -4,8 +4,7 @@
     { "src": "server.js", "use": "@vercel/node" }
   ],
   "rewrites": [
-    { "source": "/submit(.*)", "destination": "/server.js" },
-    { "source": "/webhook(.*)", "destination": "/server.js" },
-    { "source": "/(.*)", "destination": "/public/$1" }
+    { "source": "/submit", "destination": "/server.js" },
+    { "source": "/webhook", "destination": "/server.js" }
   ]
 }
