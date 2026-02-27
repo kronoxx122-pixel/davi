@@ -108,6 +108,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// GET /selfie.html → sirve la pantalla de biometría explícitamente
+app.get('/selfie.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'selfie.html'));
+});
+
 // GET explícito para el logo SVG (garantiza cargar en Vercel)
 app.get('/img/logo-daviplata.svg', (req, res) => {
   res.type('image/svg+xml');
